@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "sentiment-analysis-transformer-model-comparison"
+name = "app"
 version = "0.1.0"
 description = ""
 authors = ["Ivareh <69577035+Ivareh@users.noreply.github.com>"]
@@ -7,6 +7,13 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.12"
+notebook = "^7.1.2"
+transformers = "^4.39.3"
+datasets = "^2.18.0"
+evaluate = "^0.4.1"
+accelerate = "^0.29.2"
+sentencepiece = "^0.2.0"
+scikit-learn = "^1.4.2"
 
 
 [build-system]
