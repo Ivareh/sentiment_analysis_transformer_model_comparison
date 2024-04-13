@@ -57,7 +57,7 @@ class TrainXLNet:
 
         return trainer
 
-    def train_model(self, trainer: Trainer):
+    def train_model(self):
         trainer = self._create_trainer()
 
         trainer.train()
