@@ -1,1 +1,1 @@
-from tokenizer import tokenizerXLNet
+from app.core.tokenizer import tokenizerXLNet

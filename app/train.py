@@ -2,8 +2,12 @@ import os
 from transformers import (
     TrainingArguments,
     Trainer,
+    PreTrainedTokenizer,
+    DataCollatorWithPadding,
 )
-from xlnet_model import XLNetModel
+from datasets import DatasetDict
+from app.core.model.xlnet_model import XLNet
+from typing import Dict
 
 
 OUTPUT_DIR = os.getenv("XLNET_OUTPUT_DIR")
@@ -15,7 +19,18 @@ XLNET_WEIGHT_DECAY = os.getenv("XLNET_WEIGHT_DECAY")
 
 
 class TrainXLNet:
-    def __init__(self):
+    def __init__(
+        self,
+        tokenizer: PreTrainedTokenizer,
+        tokenized_dataset: DatasetDict,
+        data_collator: DataCollatorWithPadding,
+        compute_metrics: Dict,
+    ):
+        self.tokenizer = tokenizer
+        self.tokenized_dataset = tokenized_dataset
+        self.data_collator = data_collator
+        self.compute_metrics = compute_metrics
+
         self.trainArguments = TrainingArguments(
             output_dir=OUTPUT_DIR,
             learning_rate=LEARNING_RATE,
@@ -29,26 +44,22 @@ class TrainXLNet:
             push_to_hub=True,
         )
 
-    def create_trainer(
-        self,
-        tokenized_dataset,
-        tokenizer,
-        data_collator,
-        compute_metrics,
-    ) -> Trainer:
+    def _create_trainer(self) -> Trainer:
         trainer = Trainer(
-            model=XLNetModel,
+            model=XLNet.model,
             args=self.trainArguments,
-            train_dataset=tokenized_dataset["train"],
-            eval_dataset=tokenized_dataset["test"],
-            tokenizer=tokenizer,
-            data_collator=data_collator,
-            compute_metrics=compute_metrics,
+            train_dataset=self.tokenized_dataset["train"],
+            eval_dataset=self.tokenized_dataset["test"],
+            tokenizer=self.tokenizer,
+            data_collator=self.data_collator,
+            compute_metrics=self.compute_metrics,
         )
 
         return trainer
-    
+
     def train_model(self, trainer: Trainer):
+        trainer = self._create_trainer()
+
         trainer.train()
         trainer.save_model()
         trainer.push_to_hub()

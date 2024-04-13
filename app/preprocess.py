@@ -1,16 +1,14 @@
 from transformers import (
-    XLNetTokenizer,
     DataCollatorWithPadding,
     PreTrainedTokenizer,
 )
-from datasets import load_dataset, DatasetDict
-from core import tokenizerXLNet
-import os
+from datasets import DatasetDict
+from typing import Dict
 
 
 # Tokenizes text and truncate sequences to model's max input length
 def _preprocess_function(
-    examples: dict, tokenizer: PreTrainedTokenizer
+    examples: Dict, tokenizer: PreTrainedTokenizer
 ) -> PreTrainedTokenizer:
     return tokenizer(examples["text"], padding="max_length", truncation=True)
 
