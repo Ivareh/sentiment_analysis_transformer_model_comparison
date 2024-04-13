@@ -28,14 +28,27 @@ class TrainXLNet:
             load_best_model_at_end=True,
             push_to_hub=True,
         )
-        
-        self.trainer = Trainer(
+
+    def create_trainer(
+        self,
+        tokenized_dataset,
+        tokenizer,
+        data_collator,
+        compute_metrics,
+    ) -> Trainer:
+        trainer = Trainer(
             model=XLNetModel,
             args=self.trainArguments,
-            train_dataset=tokenized_imdb["train"],
-            eval_dataset=tokenized_imdb["test"],
+            train_dataset=tokenized_dataset["train"],
+            eval_dataset=tokenized_dataset["test"],
             tokenizer=tokenizer,
             data_collator=data_collator,
             compute_metrics=compute_metrics,
         )
 
+        return trainer
+    
+    def train_model(self, trainer: Trainer):
+        trainer.train()
+        trainer.save_model()
+        trainer.push_to_hub()

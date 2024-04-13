@@ -8,4 +8,4 @@ class XLNetModel:
     def __init__(self):
         self.id2label = {0: "NEGATIVE", 1: "POSITIVE"}
         self.label2id = {"NEGATIVE": 0, "POSITIVE": 1}
-        self.model = XLNetForSequenceClassification.from_pretrained(MODEL)
+        self.model = XLNetForSequenceClassification.from_pretrained(MODEL, num_labels=len(self.id2label), id2label=self.id2label, label2id=self.label2id)

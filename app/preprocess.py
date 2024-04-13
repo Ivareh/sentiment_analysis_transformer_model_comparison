@@ -1,26 +1,26 @@
-from transformers import XLNetTokenizer
-from datasets import load_dataset
+from transformers import (
+    XLNetTokenizer,
+    DataCollatorWithPadding,
+    PreTrainedTokenizer,
+)
+from datasets import load_dataset, DatasetDict
+from core import tokenizerXLNet
 import os
 
-XLNET_MODEL = os.getenv("XLNET_MODEL")
 
-tokenizer = XLNetTokenizer.from_pretrained(
-    XLNET_MODEL
-)  # https://huggingface.co/xlnet/xlnet-base-cased. Can also try xlnet-large-cased
-
-
-def preprocess_function(examples):
-    return tokenizer(examples["text"], truncation=True)
+# Tokenizes text and truncate sequences to model's max input length
+def _preprocess_function(
+    examples: dict, tokenizer: PreTrainedTokenizer
+) -> PreTrainedTokenizer:
+    return tokenizer(examples["text"], padding="max_length", truncation=True)
 
 
-def main():
-
-    imdb = load_dataset("imdb")
-
-    print(imdb["test"][0])
-
-    tokenized_imdb = imdb.map(preprocess_function, batched=True)
+# Tokenizes dataset
+def tokenized_dataset(dataset: DatasetDict) -> DatasetDict:
+    tokenized_dataset = dataset.map(_preprocess_function, batched=True)
+    return tokenized_dataset
 
 
-if __name__ == "__main__":
-    main()
+# Create batch of examples using data collator
+def data_collator(tokenizer: PreTrainedTokenizer) -> DataCollatorWithPadding:
+    return DataCollatorWithPadding(tokenizer=tokenizer)
