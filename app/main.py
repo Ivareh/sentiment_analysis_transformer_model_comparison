@@ -7,13 +7,16 @@ import evaluation
 
 def main():
     dataset = load_data.load_imdb_dataset()
-    tokenized_dataset = preprocess.tokenized_dataset(dataset)
-    data_collator = preprocess.data_collator(tokenizer=tokenizerXLNet)
+
+    xlnet_tokenized_dataset = preprocess.tokenize_dataset(
+        dataset=dataset, tokenizer=tokenizerXLNet
+    )
+    xlnet_data_collator = preprocess.data_collator(tokenizer=tokenizerXLNet)
 
     trainXLNet = TrainXLNet(
         tokenizer=tokenizerXLNet,
-        tokenized_dataset=tokenized_dataset,
-        data_collator=data_collator,
+        tokenized_dataset=xlnet_tokenized_dataset,
+        data_collator=xlnet_data_collator,
         compute_metrics=evaluation.compute_metrics,
     )
 
