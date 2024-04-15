@@ -1,9 +1,12 @@
 import os
+import torch
 from transformers import (
     TrainingArguments,
     Trainer,
     PreTrainedTokenizer,
     DataCollatorWithPadding,
+    XLNetForSequenceClassification,
+    get_scheduler,
 )
 from datasets import DatasetDict
 from app.core.model.xlnet_model import XLNet
@@ -11,11 +14,11 @@ from typing import Dict
 
 
 OUTPUT_DIR = os.getenv("XLNET_OUTPUT_DIR")
-LEARNING_RATE = os.getenv("XLNET_LEARNING_RATE")
-PER_DEVICE_TRAIN_BATCH_SIZE = os.getenv("XLNET_PER_DEVICE_TRAIN_BATCH_SIZE")
-PER_DEVICE_EVAL_BATCH_SIZE = os.getenv("XLNET_PER_DEVICE_EVAL_BATCH_SIZE")
-NUM_TRAIN_EPOCHS = os.getenv("XLNET_NUM_TRAIN_EPOCHS")
-XLNET_WEIGHT_DECAY = os.getenv("XLNET_WEIGHT_DECAY")
+LEARNING_RATE = float(os.getenv("XLNET_LEARNING_RATE"))
+PER_DEVICE_TRAIN_BATCH_SIZE = int(os.getenv("XLNET_PER_DEVICE_TRAIN_BATCH_SIZE"))
+PER_DEVICE_EVAL_BATCH_SIZE = int(os.getenv("XLNET_PER_DEVICE_EVAL_BATCH_SIZE"))
+NUM_TRAIN_EPOCHS = int(os.getenv("XLNET_NUM_TRAIN_EPOCHS"))
+XLNET_WEIGHT_DECAY = float(os.getenv("XLNET_WEIGHT_DECAY"))
 
 
 class TrainXLNet:
@@ -25,11 +28,20 @@ class TrainXLNet:
         tokenized_dataset: DatasetDict,
         data_collator: DataCollatorWithPadding,
         compute_metrics: Dict,
+        xlnet_model: XLNetForSequenceClassification,
+        num_training_steps: int,
     ):
         self.tokenizer = tokenizer
         self.tokenized_dataset = tokenized_dataset
         self.data_collator = data_collator
         self.compute_metrics = compute_metrics
+        self.xlnet_model = xlnet_model
+
+        self.optimizer = torch.optim.AdamW(
+            self.xlnet_model.parameters(), lr=LEARNING_RATE
+        )
+
+        self.lr_scheduler = get_scheduler(name="linear", optimizer=self.optimizer, num_warmup_steps=0, num_training_steps=num_training_steps)
 
         self.trainArguments = TrainingArguments(
             output_dir=OUTPUT_DIR,
@@ -46,13 +58,14 @@ class TrainXLNet:
 
     def _create_trainer(self) -> Trainer:
         trainer = Trainer(
-            model=XLNet.model,
+            model=self.xlnet_model,
             args=self.trainArguments,
             train_dataset=self.tokenized_dataset["train"],
             eval_dataset=self.tokenized_dataset["test"],
             tokenizer=self.tokenizer,
             data_collator=self.data_collator,
             compute_metrics=self.compute_metrics,
+            optimizers=(self.optimizer, self.lr_scheduler),
         )
 
         return trainer
@@ -60,6 +73,5 @@ class TrainXLNet:
     def train_model(self):
         trainer = self._create_trainer()
 
-        trainer.train()
-        trainer.save_model()
-        trainer.push_to_hub()
+        result = trainer.train()
+        return result

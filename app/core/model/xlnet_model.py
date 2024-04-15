@@ -12,4 +12,7 @@ class XLNet:
             num_labels=len(id2label),
             id2label=id2label,
             label2id=label2id,
-        )
+        ).to("cuda")
+        
+    def get_model(self):
+        return self.model

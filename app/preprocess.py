@@ -15,7 +15,8 @@ def _preprocess_function(
 
 # Tokenizes dataset
 def tokenize_dataset(dataset: DatasetDict, tokenizer: PreTrainedTokenizer) -> DatasetDict:
-    tokenized_dataset = dataset.map(_preprocess_function(tokenizer), batched=True)
+    preprocess = lambda examples: _preprocess_function(examples, tokenizer)
+    tokenized_dataset = dataset.map(preprocess, batched=True)
     return tokenized_dataset
 
 

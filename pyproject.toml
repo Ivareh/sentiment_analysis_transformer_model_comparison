@@ -15,6 +15,10 @@ accelerate = "^0.29.2"
 sentencepiece = "^0.2.0"
 scikit-learn = "^1.4.2"
 tqdm = "^4.66.2"
+torch = { url = "https://download.pytorch.org/whl/cu121/torch-2.2.2%2Bcu121-cp312-cp312-win_amd64.whl" }
+torchvision = { url = "https://download.pytorch.org/whl/cu121/torchvision-0.17.2%2Bcu121-cp312-cp312-win_amd64.whl" }
+torchaudio = { url = "https://download.pytorch.org/whl/cu121/torchaudio-2.2.2%2Bcu121-cp312-cp312-win_amd64.whl"}
+pynvml = "^11.5.0"
 
 
 [build-system]
