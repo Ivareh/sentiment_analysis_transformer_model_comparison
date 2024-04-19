@@ -1,4 +1,4 @@
-from app.core.model.xlnet_model import XLNet
+from app.core.model.models import XLNet
 from train import TrainXLNet
 from app.core.external_dataset_loader import load_data
 from app.core import tokenizerXLNet

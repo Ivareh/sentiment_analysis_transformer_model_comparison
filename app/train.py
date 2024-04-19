@@ -9,7 +9,7 @@ from transformers import (
     get_scheduler,
 )
 from datasets import DatasetDict
-from app.core.model.xlnet_model import XLNet
+from app.core.model.models import XLNet
 from typing import Dict
 
 
